@@ -9,6 +9,7 @@ def abrir_analisis_avanzado(parent, text):
     ventana_analisis = tk.Toplevel(parent)
     ventana_analisis.title("Análisis Avanzado")
     ventana_analisis.geometry("1000x400")
+    ventana_analisis.iconbitmap("./src/img/logo-icono.ico")
     ventana_analisis.configure(bg="#2e2e2e")
 
     # Función para actualizar la tabla según la categoría gramatical seleccionada

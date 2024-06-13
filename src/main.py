@@ -9,6 +9,7 @@ from importar import leer_pdf, leer_txt, leer_docx
 from analisis_avanzado import abrir_analisis_avanzado
 from chart_converter import convertir_a_grafica
 from audio import transcribe_audio
+from excel_exporter import exportar_a_excel
 import time
 from threading import Thread
 
@@ -16,6 +17,8 @@ class Aplicacion:
     def __init__(self, root):
         self.root = root
         self.root.title("BrainLingua NLP")
+        # Establecer el icono personalizado
+        self.root.iconbitmap("./src/img/logo-icono.ico")
         self.root.state('zoomed')  
         self.root.configure(bg="#2e2e2e")
         
@@ -83,7 +86,7 @@ class Aplicacion:
         self.root.grid_rowconfigure(1, weight=1)
 
     def _add_logo(self):
-        logo_image = Image.open("./src/img/prueba_logo.png").resize((40, 40))
+        logo_image = Image.open("./src/img/Logo_NF.png").resize((170, 50))
         logo_photo = ImageTk.PhotoImage(logo_image)
         tk.Label(self.root, image=logo_photo, bg="#2e2e2e").grid(row=0, column=0, pady=(5, 0), padx=5, sticky="w")
         self.root.image = logo_photo  # Prevent garbage collection
@@ -91,7 +94,7 @@ class Aplicacion:
     def _add_welcome_text(self):
         welcome_text = (
             "¡Bienvenido a BrainLingua!\n"
-            "Este programa realiza análisis de texto por medio del lenguaje natural.\n"
+            "Este programa realiza análisis de texto por medio de NLP.\n"
             "Autor: Pablo Fernández Planas\n"
         )
         tk.Label(self.root, text=welcome_text, justify="left", bg="#2e2e2e", fg="white", font=("Helvetica", 12)).grid(
@@ -171,7 +174,7 @@ class Aplicacion:
 
         # BOTON SAVE
         img_save = PhotoImage(file="./src/img/SAVE.png").subsample(15, 15)
-        ttk.Button(button_frame, image=img_save, text='Guardar', compound=tk.LEFT, command=self.exportar_a_excel).pack(side=tk.RIGHT, padx=5, pady=5)
+        ttk.Button(button_frame, image=img_save, text='Guardar', compound=tk.LEFT, command=lambda: exportar_a_excel(self.tree, self.analisis_realizado)).pack(side=tk.RIGHT, padx=5, pady=5)
         self.root.img_export_excel = img_save
 
         parent_frame.grid_rowconfigure(2, weight=0)
@@ -210,28 +213,6 @@ class Aplicacion:
     def clear_text_box(self):
         # Limpiar el cuadro de texto
         self.text_box.delete("1.0", tk.END)
-
-    def exportar_a_excel(self):
-        if not self.analisis_realizado:
-            messagebox.showwarning("Exportar a Excel", "Por favor, realice un análisis antes de exportar los datos.")
-            return
-
-        file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
-        if not file_path:
-            return
-
-        workbook = openpyxl.Workbook()
-        sheet = workbook.active
-
-        for idx, col in enumerate(self.tree["columns"], start=1):
-            sheet.cell(row=1, column=idx, value=col)
-
-        for idx, item in enumerate(self.tree.get_children(), start=2):
-            for col_idx, col in enumerate(self.tree["columns"], start=1):
-                sheet.cell(row=idx, column=col_idx, value=self.tree.set(item, col))
-
-        workbook.save(file_path)
-        messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
 
     def import_audio(self):
         # Abrir cuadro de diálogo para seleccionar archivo de audio WAV
